@@ -62,7 +62,7 @@ public class ItemRepositoryImpl implements ItemRepository {
         return usersItems.values()
                 .stream()
                 .flatMap(itemMap -> itemMap.values().stream())
-                .filter(item-> item.getId() == itemId)
+                .filter(item -> item.getId() == itemId)
                 .map(ItemMapper::toItemDto)
                 .findFirst();
     }

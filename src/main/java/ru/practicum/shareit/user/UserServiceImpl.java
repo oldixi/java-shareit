@@ -32,7 +32,7 @@ public class UserServiceImpl implements UserService {
         }
         if (isEmailExists(userId, userDto.getEmail())) {
             throw new ExistEmailException();
-        };
+        }
         return userRepository.updateUser(userId, userDto);
     }
 
