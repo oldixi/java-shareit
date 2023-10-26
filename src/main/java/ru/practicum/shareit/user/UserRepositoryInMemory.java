@@ -24,14 +24,13 @@ public class UserRepositoryInMemory implements UserRepository {
     public User cteateUser(UserDto userDto) {
         User user = UserMapper.toUser(generateId(), userDto);
         users.put(user.getId(), user);
+        log.info("User {} created", user.getId());
         return users.get(user.getId());
     }
 
     @Override
     public User updateUser(long userId, UserDto userDto) {
-        userDto.setName(userDto.getName() != null ? userDto.getName() : users.get(userId).getName());
-        userDto.setEmail(userDto.getEmail() != null ? userDto.getEmail() : users.get(userId).getEmail());
-        users.replace(userId, UserMapper.toUser(userId, userDto));
+        users.replace(userId, UserMapper.toUser(users.get(userId), userDto));
         return users.get(userId);
     }
 

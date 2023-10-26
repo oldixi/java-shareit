@@ -27,7 +27,7 @@ public class ItemController {
 
     @PostMapping
     public Item createItem(@RequestHeader("X-Sharer-User-Id") long userId, @Valid @RequestBody ItemDto itemDto) {
-        log.info("Request for item creation");
+        log.info("Request for item {} of user {} creation", itemDto.getName(), userId);
         return itemService.createItem(userId, itemDto);
     }
 

@@ -26,6 +26,24 @@ public class ItemMapper {
                 .build();
     }
 
+    public static Item toItem(Item item, ItemDto itemDto) {
+        itemDto.setName(itemDto.getName() != null ?
+                itemDto.getName() :
+                item.getName());
+        itemDto.setDescription(itemDto.getDescription() != null ?
+                itemDto.getDescription() :
+                item.getDescription());
+        itemDto.setAvailable(itemDto.getAvailable() != null ?
+                itemDto.getAvailable() :
+                item.isAvailable());
+        return Item.builder()
+                .id(item.getId())
+                .name(itemDto.getName())
+                .description(itemDto.getDescription())
+                .available(itemDto.getAvailable())
+                .build();
+    }
+
     public static Item toItem(long itemId, ItemDto itemdto, User owner, ItemRequest request) {
         return Item.builder()
                 .id(itemId)

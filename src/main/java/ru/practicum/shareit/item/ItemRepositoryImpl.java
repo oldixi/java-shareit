@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
@@ -12,6 +13,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Repository("itemMemoryRepository")
+@Slf4j
 public class ItemRepositoryImpl implements ItemRepository {
     private final Map<Long, Map<Long, Item>> usersItems = new HashMap<>();
     private long generatedId = 0;
@@ -27,21 +29,13 @@ public class ItemRepositoryImpl implements ItemRepository {
             itemsOld.put(item.getId(), item);
             return itemsOld;
         });
+        log.info("Item {} created", item.getId());
         return usersItems.get(userId).get(item.getId());
     }
 
     @Override
     public Item updateItem(long userId, long itemId, ItemDto itemDto) {
-        itemDto.setName(itemDto.getName() != null ?
-                itemDto.getName() :
-                usersItems.get(userId).get(itemId).getName());
-        itemDto.setDescription(itemDto.getDescription() != null ?
-                itemDto.getDescription() :
-                usersItems.get(userId).get(itemId).getDescription());
-        itemDto.setAvailable(itemDto.getAvailable() != null ?
-                itemDto.getAvailable() :
-                usersItems.get(userId).get(itemId).isAvailable());
-        Item item = ItemMapper.toItem(itemId, itemDto);
+        Item item = ItemMapper.toItem(usersItems.get(userId).get(itemId), itemDto);
         usersItems.computeIfPresent(userId, (id, items) -> {
             items.replace(itemId, item);
             return items;
