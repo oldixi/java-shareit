@@ -73,14 +73,14 @@ public class ItemServiceImpl implements ItemService {
         checkItem(itemId);
         userService.checkUser(userId);
         if (bookingRepository
-                .findByUserIdAndStatusIsAndBookingEndDateBeforeOrderByBookingStartDateDesc(userId,
+                .findByUserIdAndStatusIsAndEndDateBeforeOrderByStartDateDesc(userId,
                         BookingStatus.APPROVED, LocalDateTime.now()).isEmpty()) {
             throw new PermissionDeniedException("You have no access to this operation");
         }
         Comment comment = Comment.builder()
                 .text(text.getText())
                 .user(userService.getUserById(userId))
-                .item(itemRepository.findById(itemId).get())
+                .item(itemRepository.findById(itemId).orElseThrow(() -> new InvalidItemIdException(itemId)))
                 .created(LocalDateTime.now())
                 .build();
         return CommentMapper.toCommentDto(commentRepository.save(comment));
@@ -100,11 +100,11 @@ public class ItemServiceImpl implements ItemService {
                 CommentMapper.toCommentDto(commentRepository.findByItemId(itemId)),
                 item.getUser().getId() == userId ?
                     BookingMapper.toBookingDto(bookingRepository
-                            .findTopByItemIdAndBookingStartDateBeforeOrderByBookingStartDateDesc(itemId,
+                            .findTopByItemIdAndStartDateBeforeOrderByStartDateDesc(itemId,
                         LocalDateTime.now()).orElse(null)) : null,
                 item.getUser().getId() == userId ?
                     BookingMapper.toBookingDto(bookingRepository
-                            .findTopByItemIdAndBookingStartDateAfterAndStatusInOrderByBookingStartDateAsc(itemId,
+                            .findTopByItemIdAndStartDateAfterAndStatusInOrderByStartDateAsc(itemId,
                         LocalDateTime.now(), List.of(BookingStatus.WAITING, BookingStatus.APPROVED)).orElse(null)) : null);
     }
 
@@ -115,10 +115,10 @@ public class ItemServiceImpl implements ItemService {
                 itemRepository.findByUserIdAndId(itemId, userId).orElseThrow(() -> new InvalidItemIdException(itemId)),
                 CommentMapper.toCommentDto(commentRepository.findByUserIdAndItemId(userId, itemId)),
                 BookingMapper.toBookingDto(bookingRepository
-                        .findTopByItemIdAndBookingStartDateBeforeOrderByBookingStartDateDesc(itemId,
+                        .findTopByItemIdAndStartDateBeforeOrderByStartDateDesc(itemId,
                                 LocalDateTime.now()).orElse(null)),
                 BookingMapper.toBookingDto(bookingRepository
-                        .findTopByItemIdAndBookingStartDateAfterAndStatusInOrderByBookingStartDateAsc(itemId,
+                        .findTopByItemIdAndStartDateAfterAndStatusInOrderByStartDateAsc(itemId,
                                 LocalDateTime.now(),
                                 List.of(BookingStatus.WAITING, BookingStatus.APPROVED)).orElse(null)));
     }
@@ -137,11 +137,11 @@ public class ItemServiceImpl implements ItemService {
                 .map(item -> ItemMapper.toItemDtoWithBookingInfo(item,
                         item.getUser().getId() == userId ?
                                 BookingMapper.toBookingDto(bookingRepository
-                                        .findTopByItemIdAndBookingStartDateBeforeOrderByBookingStartDateDesc(item.getId(),
+                                        .findTopByItemIdAndStartDateBeforeOrderByStartDateDesc(item.getId(),
                                                 LocalDateTime.now()).orElse(null)) : null,
                         item.getUser().getId() == userId ?
                                 BookingMapper.toBookingDto(bookingRepository
-                                        .findTopByItemIdAndBookingStartDateAfterAndStatusInOrderByBookingStartDateAsc(item.getId(),
+                                        .findTopByItemIdAndStartDateAfterAndStatusInOrderByStartDateAsc(item.getId(),
                                                 LocalDateTime.now(),
                                                 List.of(BookingStatus.WAITING, BookingStatus.APPROVED)).orElse(null)) : null))
                 .collect(Collectors.toList());

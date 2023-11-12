@@ -14,10 +14,19 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class BookingDto {
-    long id;
-    @JsonProperty("start") LocalDateTime bookingStartDate;
-    @JsonProperty("end") LocalDateTime bookingEndDate;
-    @JsonProperty("itemId") Long itemId;
-    @JsonProperty("bookerId") Long userId;
-    BookingStatus status;
+    private long id;
+
+    @JsonProperty("start")
+    private LocalDateTime startDate;
+
+    @JsonProperty("end")
+    private LocalDateTime endDate;
+
+    @JsonProperty("itemId")
+    private Long itemId;
+
+    @JsonProperty("bookerId")
+    private Long userId;
+
+    private BookingStatus status;
 }

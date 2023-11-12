@@ -14,8 +14,8 @@ public class BookingMapper {
         }
         return BookingDto.builder()
                 .id(booking.getId())
-                .bookingStartDate(booking.getBookingStartDate())
-                .bookingEndDate(booking.getBookingEndDate())
+                .startDate(booking.getStartDate())
+                .endDate(booking.getEndDate())
                 .status(booking.getStatus())
                 .itemId(booking.getItem() != null ? booking.getItem().getId() : null)
                 .userId(booking.getUser() != null ? booking.getUser().getId() : null)
@@ -31,8 +31,8 @@ public class BookingMapper {
     public static Booking toBooking(long bookingId, BookingDto bookingDto, User user, Item item) {
         return Booking.builder()
                 .id(bookingId)
-                .bookingStartDate(bookingDto.getBookingStartDate())
-                .bookingEndDate(bookingDto.getBookingEndDate())
+                .startDate(bookingDto.getStartDate())
+                .endDate(bookingDto.getEndDate())
                 .status(bookingDto.getStatus())
                 .user(user)
                 .item(item)
@@ -41,8 +41,8 @@ public class BookingMapper {
 
     public static Booking toBooking(BookingDto bookingDto, User user, Item item) {
         return Booking.builder()
-                .bookingStartDate(bookingDto.getBookingStartDate())
-                .bookingEndDate(bookingDto.getBookingEndDate())
+                .startDate(bookingDto.getStartDate())
+                .endDate(bookingDto.getEndDate())
                 .status(bookingDto.getStatus())
                 .user(user)
                 .item(item)
@@ -50,18 +50,18 @@ public class BookingMapper {
     }
 
     public static Booking toBooking(Booking booking, BookingDto bookingDto, User user, Item item) {
-        bookingDto.setBookingEndDate(bookingDto.getBookingEndDate() != null ?
-                bookingDto.getBookingEndDate() :
-                booking.getBookingEndDate());
-        bookingDto.setBookingStartDate(bookingDto.getBookingStartDate() != null ?
-                bookingDto.getBookingStartDate() :
-                booking.getBookingStartDate());
+        bookingDto.setEndDate(bookingDto.getEndDate() != null ?
+                bookingDto.getEndDate() :
+                booking.getEndDate());
+        bookingDto.setStartDate(bookingDto.getStartDate() != null ?
+                bookingDto.getStartDate() :
+                booking.getStartDate());
         bookingDto.setStatus(bookingDto.getStatus() != null ?
                 bookingDto.getStatus() :
                 booking.getStatus());
         return Booking.builder()
-                .bookingStartDate(bookingDto.getBookingStartDate())
-                .bookingEndDate(bookingDto.getBookingEndDate())
+                .startDate(bookingDto.getStartDate())
+                .endDate(bookingDto.getEndDate())
                 .status(bookingDto.getStatus())
                 .user(user)
                 .item(item)

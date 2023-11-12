@@ -11,41 +11,37 @@ import java.util.Optional;
 public interface BookingRepository extends JpaRepository<Booking, Long> {
     Optional<Booking> findByUserIdAndId(long userId, long bookingId);
 
-    Optional<Booking> findTopByItemIdAndBookingStartDateBeforeOrderByBookingStartDateDesc(long itemId, LocalDateTime now);
+    Optional<Booking> findTopByItemIdAndStartDateBeforeOrderByStartDateDesc(long itemId, LocalDateTime now);
 
-    Optional<Booking> findTopByItemIdAndBookingStartDateAfterAndStatusInOrderByBookingStartDateAsc(long itemId,
-                                                                                                   LocalDateTime now,
-                                                                                                   List<BookingStatus> state);
+    Optional<Booking> findTopByItemIdAndStartDateAfterAndStatusInOrderByStartDateAsc(long itemId,
+                                                                                     LocalDateTime now,
+                                                                                     List<BookingStatus> state);
 
-    List<Booking> findByUserIdOrderByBookingStartDateDesc(long userId);
+    List<Booking> findByUserIdOrderByStartDateDesc(long userId);
 
-    List<Booking> findByUserIdAndStatusIsOrderByBookingStartDateDesc(long userId, BookingStatus state);
+    List<Booking> findByUserIdAndStatusIsOrderByStartDateDesc(long userId, BookingStatus state);
 
-    List<Booking> findByUserIdAndStatusIsAndBookingEndDateBeforeOrderByBookingStartDateDesc(long userId,
-                                                                                            BookingStatus state,
-                                                                                            LocalDateTime nowDate);
+    List<Booking> findByUserIdAndStatusIsAndEndDateBeforeOrderByStartDateDesc(long userId,
+                                                                              BookingStatus state,
+                                                                              LocalDateTime nowDate);
 
-    List<Booking> findByUserIdAndBookingStartDateAfterOrderByBookingStartDateDesc(long userId,
-                                                                                  LocalDateTime nowDate);
+    List<Booking> findByUserIdAndStartDateAfterOrderByStartDateDesc(long userId, LocalDateTime nowDate);
 
-    List<Booking> findByUserIdAndBookingEndDateBeforeOrderByBookingStartDateDesc(long userId,
-                                                                                 LocalDateTime nowDate);
+    List<Booking> findByUserIdAndEndDateBeforeOrderByStartDateDesc(long userId, LocalDateTime nowDate);
 
-    List<Booking> findByUserIdAndBookingEndDateAfterAndBookingStartDateBeforeOrderByIdAsc(long userId,
-                                                                                          LocalDateTime endNowDate,
-                                                                                          LocalDateTime startNowDate);
+    List<Booking> findByUserIdAndEndDateAfterAndStartDateBeforeOrderByIdAsc(long userId,
+                                                                            LocalDateTime endNowDate,
+                                                                            LocalDateTime startNowDate);
 
-    List<Booking>  findByItemUserIdOrderByBookingStartDateDesc(long userId);
+    List<Booking> findByItemUserIdOrderByStartDateDesc(long userId);
 
-    List<Booking> findByItemUserIdAndStatusIsOrderByBookingStartDateDesc(long userId, BookingStatus state);
+    List<Booking> findByItemUserIdAndStatusIsOrderByStartDateDesc(long userId, BookingStatus state);
 
-    List<Booking> findByItemUserIdAndBookingStartDateAfterOrderByBookingStartDateDesc(long userId,
-                                                                                      LocalDateTime nowDate);
+    List<Booking> findByItemUserIdAndStartDateAfterOrderByStartDateDesc(long userId, LocalDateTime nowDate);
 
-    List<Booking> findByItemUserIdAndBookingEndDateBeforeOrderByBookingStartDateDesc(long userId,
-                                                                                     LocalDateTime nowDate);
+    List<Booking> findByItemUserIdAndEndDateBeforeOrderByStartDateDesc(long userId, LocalDateTime nowDate);
 
-    List<Booking> findByItemUserIdAndBookingEndDateAfterAndBookingStartDateBeforeOrderByIdAsc(long userId,
-                                                                                              LocalDateTime endNowDate,
-                                                                                              LocalDateTime startNowDate);
+    List<Booking> findByItemUserIdAndEndDateAfterAndStartDateBeforeOrderByIdAsc(long userId,
+                                                                                LocalDateTime endNowDate,
+                                                                                LocalDateTime startNowDate);
 }

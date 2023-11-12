@@ -37,12 +37,12 @@ public class Booking {
     @NotNull
     @JsonProperty("start")
     @Column(name = "start_date")
-    private LocalDateTime bookingStartDate;
+    private LocalDateTime startDate;
 
     @NotNull
     @JsonProperty("end")
     @Column(name = "end_date")
-    private LocalDateTime bookingEndDate;
+    private LocalDateTime endDate;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "item_id", referencedColumnName = "id")
@@ -55,7 +55,7 @@ public class Booking {
     @JsonProperty("booker")
     private User user;
 
-    @Enumerated(EnumType.STRING)//EnumType.ORDINAL
+    @Enumerated(EnumType.STRING)
     private BookingStatus status;
 
     @Override

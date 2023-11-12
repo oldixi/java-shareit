@@ -31,7 +31,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     @Transactional
     public Booking createBooking(long userId, BookingDto bookingDto) {
-        if (isNewBookingDatesInvalid(bookingDto.getBookingStartDate(), bookingDto.getBookingEndDate())) {
+        if (isNewBookingDatesInvalid(bookingDto.getStartDate(), bookingDto.getEndDate())) {
             throw new InvalidPathVariableException("Wrong dates in booking request");
         }
         userService.checkUser(userId);
@@ -53,7 +53,8 @@ public class BookingServiceImpl implements BookingService {
             throw new InvalidBookingIdException(bookingId);
         }
         userService.checkUser(userId);
-        Booking booking = bookingRepository.findById(bookingId).get();
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new InvalidBookingIdException(bookingId));
         itemService.checkItem(userId, booking.getItem().getId());
         if (approved && booking.getStatus().equals(BookingStatus.APPROVED) ||
             !approved && booking.getStatus().equals(BookingStatus.REJECTED)) {
@@ -87,20 +88,20 @@ public class BookingServiceImpl implements BookingService {
         try {
             switch (BookingState.valueOf(state)) {
                 case ALL:
-                    return bookingRepository.findByUserIdOrderByBookingStartDateDesc(userId);
+                    return bookingRepository.findByUserIdOrderByStartDateDesc(userId);
                 case WAITING:
                 case REJECTED:
-                    return bookingRepository.findByUserIdAndStatusIsOrderByBookingStartDateDesc(userId,
+                    return bookingRepository.findByUserIdAndStatusIsOrderByStartDateDesc(userId,
                             BookingStatus.valueOf(state));
                 case FUTURE:
                     return bookingRepository
-                            .findByUserIdAndBookingStartDateAfterOrderByBookingStartDateDesc(userId, LocalDateTime.now());
+                            .findByUserIdAndStartDateAfterOrderByStartDateDesc(userId, LocalDateTime.now());
                 case PAST:
                     return bookingRepository
-                            .findByUserIdAndBookingEndDateBeforeOrderByBookingStartDateDesc(userId, LocalDateTime.now());
+                            .findByUserIdAndEndDateBeforeOrderByStartDateDesc(userId, LocalDateTime.now());
                 case CURRENT:
                     return bookingRepository
-                            .findByUserIdAndBookingEndDateAfterAndBookingStartDateBeforeOrderByIdAsc(userId,
+                            .findByUserIdAndEndDateAfterAndStartDateBeforeOrderByIdAsc(userId,
                                     LocalDateTime.now(), LocalDateTime.now());
                 default:
                     throw new InvalidPathVariableException("Unknown state: " + state);
@@ -119,20 +120,20 @@ public class BookingServiceImpl implements BookingService {
         try {
             switch (BookingState.valueOf(state)) {
                 case ALL:
-                    return bookingRepository.findByItemUserIdOrderByBookingStartDateDesc(userId);
+                    return bookingRepository.findByItemUserIdOrderByStartDateDesc(userId);
                 case WAITING:
                 case REJECTED:
-                    return bookingRepository.findByItemUserIdAndStatusIsOrderByBookingStartDateDesc(userId,
+                    return bookingRepository.findByItemUserIdAndStatusIsOrderByStartDateDesc(userId,
                             BookingStatus.valueOf(state));
                 case FUTURE:
                     return bookingRepository
-                            .findByItemUserIdAndBookingStartDateAfterOrderByBookingStartDateDesc(userId, LocalDateTime.now());
+                            .findByItemUserIdAndStartDateAfterOrderByStartDateDesc(userId, LocalDateTime.now());
                 case PAST:
                     return bookingRepository
-                            .findByItemUserIdAndBookingEndDateBeforeOrderByBookingStartDateDesc(userId, LocalDateTime.now());
+                            .findByItemUserIdAndEndDateBeforeOrderByStartDateDesc(userId, LocalDateTime.now());
                 case CURRENT:
                     return bookingRepository
-                            .findByItemUserIdAndBookingEndDateAfterAndBookingStartDateBeforeOrderByIdAsc(userId,
+                            .findByItemUserIdAndEndDateAfterAndStartDateBeforeOrderByIdAsc(userId,
                                     LocalDateTime.now(), LocalDateTime.now());
                 default:
                     throw new InvalidPathVariableException("Unknown state: " + state);
@@ -144,13 +145,13 @@ public class BookingServiceImpl implements BookingService {
 
     public Booking getLastBookingByItemId(long itemId) {
         itemService.checkItem(itemId);
-        return bookingRepository.findTopByItemIdAndBookingStartDateBeforeOrderByBookingStartDateDesc(itemId,
+        return bookingRepository.findTopByItemIdAndStartDateBeforeOrderByStartDateDesc(itemId,
                 LocalDateTime.now()).orElse(new Booking());
     }
 
     public Booking getNextBookingByItemId(long itemId) {
         itemService.checkItem(itemId);
-        return bookingRepository.findTopByItemIdAndBookingStartDateAfterAndStatusInOrderByBookingStartDateAsc(itemId,
+        return bookingRepository.findTopByItemIdAndStartDateAfterAndStatusInOrderByStartDateAsc(itemId,
                 LocalDateTime.now(), List.of(BookingStatus.WAITING, BookingStatus.APPROVED)).orElse(new Booking());
     }
 
