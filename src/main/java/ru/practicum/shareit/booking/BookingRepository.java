@@ -31,8 +31,9 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     List<Booking> findByUserIdAndBookingEndDateBeforeOrderByBookingStartDateDesc(long userId,
                                                                                  LocalDateTime nowDate);
 
-    List<Booking> findByUserIdAndBookingEndDateAfterAndBookingStartDateBeforeOrderByIdAsc
-            (long userId, LocalDateTime endNowDate, LocalDateTime startNowDate);
+    List<Booking> findByUserIdAndBookingEndDateAfterAndBookingStartDateBeforeOrderByIdAsc(long userId,
+                                                                                          LocalDateTime endNowDate,
+                                                                                          LocalDateTime startNowDate);
 
     List<Booking>  findByItemUserIdOrderByBookingStartDateDesc(long userId);
 
@@ -44,6 +45,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     List<Booking> findByItemUserIdAndBookingEndDateBeforeOrderByBookingStartDateDesc(long userId,
                                                                                      LocalDateTime nowDate);
 
-    List<Booking> findByItemUserIdAndBookingEndDateAfterAndBookingStartDateBeforeOrderByIdAsc
-            (long userId, LocalDateTime endNowDate, LocalDateTime startNowDate);
+    List<Booking> findByItemUserIdAndBookingEndDateAfterAndBookingStartDateBeforeOrderByIdAsc(long userId,
+                                                                                              LocalDateTime endNowDate,
+                                                                                              LocalDateTime startNowDate);
 }

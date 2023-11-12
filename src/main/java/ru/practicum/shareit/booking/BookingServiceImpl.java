@@ -70,8 +70,8 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public Booking getBookingById(long userId, long bookingId) {
         userService.checkUser(userId);
-        Booking booking = bookingRepository.findById(bookingId).
-                orElseThrow(() -> new InvalidBookingIdException(bookingId));
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new InvalidBookingIdException(bookingId));
         if (booking.getUser().getId() != userId && booking.getItem().getUser().getId() != userId) {
             throw new InvalidBookingIdException(bookingId);
         }
