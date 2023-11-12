@@ -1,8 +1,11 @@
 package ru.practicum.shareit.item;
 
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.comment.Comment;
+import ru.practicum.shareit.comment.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.dto.ItemDtoWithBookingInfo;
+import ru.practicum.shareit.item.dto.ItemDtoWithCommentsAndBookingInfo;
 
 import java.util.List;
 
@@ -16,9 +19,19 @@ public interface ItemService {
 
     ItemDto getItemById(long userId, long itemId);
 
-    List<ItemDto> getItemsByUserId(long userId);
+    ItemDto getItemByIdAndUserIdNot(long userId, long itemId);
+
+    ItemDtoWithCommentsAndBookingInfo getItemByIdWithCommentsAndBookingInfo(long userId, long itemId);
+
+    ItemDtoWithCommentsAndBookingInfo getItemByIdAndUserId(long itemId, long userId);
+
+    List<ItemDtoWithBookingInfo> getItemsByUserId(long userId);
 
     List<ItemDto> searchItems(long userId, String text);
 
-    boolean isItemValid(long userId, long id);
+    CommentDto createComment(long userId, long itemId, Comment text);
+
+    void checkItem(long userId, long itemId);
+
+    void checkItem(long itemId);
 }
