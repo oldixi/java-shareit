@@ -12,8 +12,11 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import ru.practicum.shareit.comment.Comment;
+import ru.practicum.shareit.comment.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.dto.ItemDtoWithBookingInfo;
+import ru.practicum.shareit.item.dto.ItemDtoWithCommentsAndBookingInfo;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -31,6 +34,14 @@ public class ItemController {
         return itemService.createItem(userId, itemDto);
     }
 
+    @PostMapping("{itemId}/comment")
+    public CommentDto createComment(@RequestHeader("X-Sharer-User-Id") long userId,
+                                    @Valid @RequestBody Comment text,
+                                    @PathVariable long itemId) {
+        log.info("Request for comment on item {} of user {} creation", itemId, userId);
+        return itemService.createComment(userId, itemId, text);
+    }
+
     @PatchMapping("/{itemId}")
     public Item updateItem(@RequestHeader("X-Sharer-User-Id") long userId,
                            @PathVariable long itemId,
@@ -46,13 +57,14 @@ public class ItemController {
     }
 
     @GetMapping("/{itemId}")
-    public ItemDto getItemById(@RequestHeader("X-Sharer-User-Id") long userId, @PathVariable long itemId) {
+    public ItemDtoWithCommentsAndBookingInfo getItemByIdAndUserId(@RequestHeader("X-Sharer-User-Id") long userId,
+                                                                  @PathVariable long itemId) {
         log.info("Request for get item {} of user {}", itemId, userId);
-        return itemService.getItemById(userId, itemId);
+        return itemService.getItemByIdWithCommentsAndBookingInfo(userId, itemId);
     }
 
     @GetMapping
-    public List<ItemDto> getItemsByUserId(@RequestHeader("X-Sharer-User-Id") long userId) {
+    public List<ItemDtoWithBookingInfo> getItemsByUserId(@RequestHeader("X-Sharer-User-Id") long userId) {
         log.info("Request for get items of user {}", userId);
         return itemService.getItemsByUserId(userId);
     }

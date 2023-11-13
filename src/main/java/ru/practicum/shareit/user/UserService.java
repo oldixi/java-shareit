@@ -17,5 +17,5 @@ public interface UserService {
 
     List<User> getUsers();
 
-    boolean isUserValid(long id);
+    void checkUser(long userId);
 }
