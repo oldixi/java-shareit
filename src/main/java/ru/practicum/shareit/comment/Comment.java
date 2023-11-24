@@ -51,9 +51,4 @@ public class Comment {
         if (!(o instanceof Comment)) return false;
         return id != null && id.equals(((Comment) o).getId());
     }
-
-    @Override
-    public int hashCode() {
-        return getClass().hashCode();
-    }
 }

@@ -176,13 +176,6 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public void checkItem(long userId, long itemId) {
-        if (!isItemValid(userId, itemId)) {
-            throw new InvalidItemIdException(itemId);
-        }
-    }
-
-    @Override
     public void checkItem(long itemId) {
         if (!itemRepository.existsById(itemId)) {
             throw new InvalidItemIdException(itemId);

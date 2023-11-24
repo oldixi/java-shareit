@@ -64,9 +64,4 @@ public class Booking {
         if (!(o instanceof Booking)) return false;
         return id != null && id.equals(((Booking) o).getId());
     }
-
-    @Override
-    public int hashCode() {
-        return getClass().hashCode();
-    }
 }

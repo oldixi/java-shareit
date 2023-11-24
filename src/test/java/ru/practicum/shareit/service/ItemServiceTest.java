@@ -534,6 +534,31 @@ public class ItemServiceTest {
     }
 
     @Test
+    void createItemCommentsNullText() {
+        User user = UserMapper.toUser(DtoCreater.makeUserDto("user@user.com", "user"));
+        em.persist(user);
+        Long userId = user.getId();
+
+        User owner = UserMapper.toUser(DtoCreater.makeUserDto("owner@user.com", "user"));
+        em.persist(owner);
+
+        Item item = ItemMapper.toItem(DtoCreater.makeItemDto("Дрель", "Простая дрель", true,
+                null), owner);
+        em.persist(item);
+        Long itemId = item.getId();
+
+        Booking booking = BookingMapper.toBooking(DtoCreater.makeBookingDto(LocalDateTime.now().minusDays(5),
+                LocalDateTime.now().minusDays(1), itemId, userId, BookingStatus.APPROVED), user, item);
+        em.persist(booking);
+
+        CommentDto commentDto = DtoCreater.makeCommentDto(null, "user", LocalDateTime.now());
+
+        assertThrows(InvalidPathVariableException.class, () -> {
+            service.createComment(userId, itemId, CommentMapper.toComment(commentDto, user, item));
+        });
+    }
+
+    @Test
     void getItemByIdAndUserId() {
         User user = UserMapper.toUser(DtoCreater.makeUserDto("user@user.com", "user"));
         em.persist(user);

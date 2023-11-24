@@ -42,10 +42,12 @@ class UserServiceTest {
 
         TypedQuery<User> query = em.createQuery("Select u from User u where u.email = :email", User.class);
         User user = query.setParameter("email", userDto.getEmail()).getSingleResult();
+        Long userId = user.getId();
 
         assertThat(user.getId(), notNullValue());
         assertThat(user.getName(), equalTo(userDto.getName()));
         assertThat(user.getEmail(), equalTo(userDto.getEmail()));
+        assertThat(user, equalTo(UserMapper.toUser(userId, userDto)));
     }
 
     @Test

@@ -1593,4 +1593,15 @@ public class BookingTest {
             service.getBookingsByOwnerAndState(userId, String.valueOf(BookingState.WAITING), 0, 0);
         });
     }
+
+    @Test
+    void getBookingByStateAndOwnerInvalidStatePageable() {
+        User user = UserMapper.toUser(DtoCreater.makeUserDto("user@user.com", "user"));
+        em.persist(user);
+        Long userId = user.getId();
+
+        assertThrows(InvalidPathVariableException.class, () -> {
+            service.getBookingsByOwnerAndState(userId, "String.valueOf(BookingState.WAITING)", 0, 1);
+        });
+    }
 }

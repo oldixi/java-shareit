@@ -30,7 +30,5 @@ public interface ItemService {
 
     CommentDto createComment(long userId, long itemId, Comment text);
 
-    void checkItem(long userId, long itemId);
-
     void checkItem(long itemId);
 }

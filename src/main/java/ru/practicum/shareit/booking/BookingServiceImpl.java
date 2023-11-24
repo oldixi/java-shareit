@@ -59,7 +59,6 @@ public class BookingServiceImpl implements BookingService {
         userService.checkUser(userId);
         Booking booking = bookingRepository.findByItemUserIdAndId(userId, bookingId)
                 .orElseThrow(() -> new InvalidBookingIdException(bookingId));
-        itemService.checkItem(userId, booking.getItem().getId());
         if (approved && booking.getStatus().equals(BookingStatus.APPROVED) ||
             !approved && booking.getStatus().equals(BookingStatus.REJECTED)) {
             throw new InvalidPathVariableException("Status of booking is already set");

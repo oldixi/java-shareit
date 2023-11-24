@@ -147,13 +147,32 @@ public class BookingControllerTest {
     }
 
     @Test
-    void updateBooking() throws Exception {
+    void updateBookingApproved() throws Exception {
         when(bookingService.updateBooking(anyLong(), anyLong(), anyBoolean()))
                 .thenReturn(getBookingList().get(0));
 
         mvc.perform(patch("/bookings/{bookingId}", 1L)
                         .content(mapper.writeValueAsString(lastBookingDto))
                         .param("approved", "true")
+                        .header("X-Sharer-User-Id", 1L)
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(1L), Long.class))
+                .andExpect(jsonPath("$.status", is(String.valueOf(lastBookingDto.getStatus()))))
+                .andExpect(jsonPath("$.start", is(String.valueOf(lastBookingDto.getStartDate()))))
+                .andExpect(jsonPath("$.end", is(String.valueOf(lastBookingDto.getEndDate()))));
+    }
+
+    @Test
+    void updateBookingRejected() throws Exception {
+        when(bookingService.updateBooking(anyLong(), anyLong(), anyBoolean()))
+                .thenReturn(getBookingList().get(0));
+
+        mvc.perform(patch("/bookings/{bookingId}", 1L)
+                        .content(mapper.writeValueAsString(lastBookingDto))
+                        .param("approved", "false")
                         .header("X-Sharer-User-Id", 1L)
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
