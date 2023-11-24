@@ -10,7 +10,7 @@ public interface BookingService {
     Booking updateBooking(long userId, long bookingId, boolean approved);
 
     Booking getBookingById(long userId, long bookingId);
-  
+
     List<Booking> getBookingByState(long userId, String state, Integer from, Integer size);
 
     List<Booking> getBookingsByOwnerAndState(long userId, String state, Integer from, Integer size);
