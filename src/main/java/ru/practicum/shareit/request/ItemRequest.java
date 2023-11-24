@@ -32,7 +32,7 @@ public class ItemRequest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     long id;
-
+  
     @NotNull
     @NotEmpty
     @NotBlank
