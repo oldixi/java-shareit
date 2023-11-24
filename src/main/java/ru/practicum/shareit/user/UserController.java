@@ -25,7 +25,7 @@ public class UserController {
     @PostMapping
     public User createUser(@Valid @RequestBody UserDto userDto) {
         log.info("Request for user {} creation", userDto.getEmail());
-        return userService.cteateUser(userDto);
+        return userService.createUser(userDto);
     }
 
     @PatchMapping("/{userId}")

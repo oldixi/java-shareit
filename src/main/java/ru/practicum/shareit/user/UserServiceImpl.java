@@ -17,7 +17,7 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public User cteateUser(UserDto userDto) {
+    public User createUser(UserDto userDto) {
         if (isEmailEmpty(userDto.getEmail())) {
             throw new InvalidEmailException();
         }

@@ -61,6 +61,13 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleInvalidItemRequestIdException(final InvalidItemRequestIdException e) {
+        log.error(e.getMessage());
+        return new ErrorResponse(e.getMessage(), HttpStatus.NOT_FOUND.value());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleInvalidBookingIdException(final InvalidBookingIdException e) {
         log.error(e.getMessage());
         return new ErrorResponse(e.getMessage(), HttpStatus.NOT_FOUND.value());

@@ -5,6 +5,7 @@ import ru.practicum.shareit.comment.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoWithBookingInfo;
 import ru.practicum.shareit.item.dto.ItemDtoWithCommentsAndBookingInfo;
+import ru.practicum.shareit.item.dto.ItemDtoWithRequestId;
 import ru.practicum.shareit.request.ItemRequest;
 import ru.practicum.shareit.user.User;
 
@@ -20,6 +21,7 @@ public class ItemMapper {
                 .name(item.getName())
                 .description(item.getDescription())
                 .available(item.isAvailable())
+                .requestId(item.getRequest() != null ? item.getRequest().getId() : null)
                 .build();
     }
 
@@ -77,12 +79,33 @@ public class ItemMapper {
                 .build();
     }
 
+    public static Item toItem(long itemId, ItemDto itemDto, User user, ItemRequest request) {
+        return Item.builder()
+                .id(itemId)
+                .name(itemDto.getName())
+                .description(itemDto.getDescription())
+                .available(itemDto.getAvailable())
+                .user(user)
+                .request(request)
+                .build();
+    }
+
     public static Item toItem(ItemDto itemDto, User user) {
         return Item.builder()
                 .name(itemDto.getName())
                 .description(itemDto.getDescription())
                 .available(itemDto.getAvailable())
                 .user(user)
+                .build();
+    }
+
+    public static Item toItem(ItemDto itemDto, User user, ItemRequest request) {
+        return Item.builder()
+                .name(itemDto.getName())
+                .description(itemDto.getDescription())
+                .available(itemDto.getAvailable())
+                .user(user)
+                .request(request)
                 .build();
     }
 
@@ -105,13 +128,34 @@ public class ItemMapper {
                 .build();
     }
 
-    public static Item toItem(long itemId, ItemDto itemdto, User owner, ItemRequest request) {
+    public static Item toItem(Item item, ItemDto itemDto, User user, ItemRequest request) {
+        itemDto.setName(itemDto.getName() != null ?
+                itemDto.getName() :
+                item.getName());
+        itemDto.setDescription(itemDto.getDescription() != null ?
+                itemDto.getDescription() :
+                item.getDescription());
+        itemDto.setAvailable(itemDto.getAvailable() != null ?
+                itemDto.getAvailable() :
+                item.isAvailable());
         return Item.builder()
-                .id(itemId)
-                .name(itemdto.getName())
-                .description(itemdto.getDescription())
-                .available(itemdto.getAvailable())
-                .user(owner)
+                .id(item.getId())
+                .name(itemDto.getName())
+                .description(itemDto.getDescription())
+                .available(itemDto.getAvailable())
+                .user(user)
+                .request(request)
+                .build();
+    }
+
+    public static ItemDtoWithRequestId toItemDtoWithRequestId(Item item) {
+        return ItemDtoWithRequestId.builder()
+                .id(item.getId())
+                .name(item.getName())
+                .description(item.getDescription())
+                .available(item.isAvailable())
+                .user(item.getUser())
+                .requestId(item.getRequest() != null ? (Long) item.getRequest().getId() : null)
                 .build();
     }
 }

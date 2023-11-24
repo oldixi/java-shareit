@@ -17,6 +17,7 @@ import ru.practicum.shareit.comment.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoWithBookingInfo;
 import ru.practicum.shareit.item.dto.ItemDtoWithCommentsAndBookingInfo;
+import ru.practicum.shareit.item.dto.ItemDtoWithRequestId;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -29,7 +30,7 @@ public class ItemController {
     private final ItemService itemService;
 
     @PostMapping
-    public Item createItem(@RequestHeader("X-Sharer-User-Id") long userId, @Valid @RequestBody ItemDto itemDto) {
+    public ItemDtoWithRequestId createItem(@RequestHeader("X-Sharer-User-Id") long userId, @Valid @RequestBody ItemDto itemDto) {
         log.info("Request for item {} of user {} creation", itemDto.getName(), userId);
         return itemService.createItem(userId, itemDto);
     }
@@ -64,14 +65,19 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemDtoWithBookingInfo> getItemsByUserId(@RequestHeader("X-Sharer-User-Id") long userId) {
-        log.info("Request for get items of user {}", userId);
-        return itemService.getItemsByUserId(userId);
+    public List<ItemDtoWithBookingInfo> getItemsByUserId(@RequestHeader("X-Sharer-User-Id") long userId,
+                                                         @RequestParam(required = false) Integer from,
+                                                         @RequestParam(required = false) Integer size) {
+        log.info("Request for get {} items of user {} from {}", size, userId, from);
+        return itemService.getItemsByUserId(userId, from, size);
     }
 
     @GetMapping("/search")
-    public List<ItemDto> searchItems(@RequestHeader("X-Sharer-User-Id") long userId, @RequestParam String text) {
-        log.info("Request for get searching items like {}", text);
-        return itemService.searchItems(userId, text);
+    public List<ItemDto> searchItems(@RequestHeader("X-Sharer-User-Id") long userId,
+                                     @RequestParam String text,
+                                     @RequestParam(required = false) Integer from,
+                                     @RequestParam(required = false) Integer size) {
+        log.info("Request for get searching {} items like {} from {}", size, text, from);
+        return itemService.searchItems(userId, text, from, size);
     }
 }
