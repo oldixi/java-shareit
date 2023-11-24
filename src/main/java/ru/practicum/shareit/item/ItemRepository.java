@@ -45,5 +45,4 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
             "or upper(i.description collate \"en_US\") like upper(concat('%', ?2, '%') collate \"en_US\")) ",
             nativeQuery = true)
     Page<Item> searchItemsByText(String name, String description, Pageable page);
-
 }
