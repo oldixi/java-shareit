@@ -225,18 +225,6 @@ public class BookingServiceImpl implements BookingService {
         }
     }
 
-    public Booking getLastBookingByItemId(long itemId) {
-        itemService.checkItem(itemId);
-        return bookingRepository.findTopByItemIdAndStartDateBeforeOrderByStartDateDesc(itemId,
-                LocalDateTime.now()).orElse(new Booking());
-    }
-
-    public Booking getNextBookingByItemId(long itemId) {
-        itemService.checkItem(itemId);
-        return bookingRepository.findTopByItemIdAndStartDateAfterAndStatusInOrderByStartDateAsc(itemId,
-                LocalDateTime.now(), List.of(BookingStatus.WAITING, BookingStatus.APPROVED)).orElse(new Booking());
-    }
-
     private boolean isInvalidId(long id) {
         return id <= 0;
     }
