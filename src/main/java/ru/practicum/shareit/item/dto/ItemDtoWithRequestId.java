@@ -17,11 +17,4 @@ public class ItemDtoWithRequestId {
     private Boolean available;
     private User user;
     private Long requestId;
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof ItemDtoWithRequestId)) return false;
-        return id != null && id.equals(((ItemDtoWithRequestId) o).getId());
-    }
 }
