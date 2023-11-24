@@ -74,6 +74,7 @@ public class BookingTest {
         assertThat(booking.getStatus(), equalTo(BookingStatus.WAITING));
         assertThat(booking.getItem(), equalTo(item));
         assertThat(booking.getUser(), equalTo(user));
+        assertThat(booking, equalTo(BookingMapper.toBooking(booking.getId(), bookingDto, user, item)));
     }
 
     @Test
@@ -266,7 +267,7 @@ public class BookingTest {
     }
 
     @Test
-    void updateBooking() {
+    void updateBookingApproved() {
         User user = UserMapper.toUser(DtoCreater.makeUserDto("user@user.com", "user"));
         em.persist(user);
         Long userId = user.getId();
@@ -290,6 +291,33 @@ public class BookingTest {
 
         assertThat(bookingUpdated.getId(), equalTo(bookingId));
         assertThat(bookingUpdated.getStatus(), equalTo(BookingStatus.APPROVED));
+    }
+
+    @Test
+    void updateBookingRejected() {
+        User user = UserMapper.toUser(DtoCreater.makeUserDto("user@user.com", "user"));
+        em.persist(user);
+        Long userId = user.getId();
+
+        User owner = UserMapper.toUser(DtoCreater.makeUserDto("owner@user.com", "owner"));
+        em.persist(owner);
+        Long ownerId = owner.getId();
+
+        Item item = ItemMapper.toItem(DtoCreater.makeItemDto("Дрель", "Простая дрель", true,
+                null), owner);
+        em.persist(item);
+        Long itemId = item.getId();
+
+        Booking booking = BookingMapper.toBooking(DtoCreater.makeBookingDto(LocalDateTime.now().plusDays(1),
+                LocalDateTime.now().plusDays(10), itemId, userId, BookingStatus.WAITING), user, item);
+        em.persist(booking);
+        Long bookingId = booking.getId();
+
+        service.updateBooking(ownerId, bookingId, false);
+        Booking bookingUpdated = em.find(Booking.class, bookingId);
+
+        assertThat(bookingUpdated.getId(), equalTo(bookingId));
+        assertThat(bookingUpdated.getStatus(), equalTo(BookingStatus.REJECTED));
     }
 
     @Test
@@ -455,6 +483,34 @@ public class BookingTest {
     }
 
     @Test
+    void getBookingOtherUserId() {
+        User user = UserMapper.toUser(DtoCreater.makeUserDto("user@user.com", "user"));
+        em.persist(user);
+        Long userId = user.getId();
+
+        User owner = UserMapper.toUser(DtoCreater.makeUserDto("owner@user.com", "owner"));
+        em.persist(owner);
+
+        User otherUser = UserMapper.toUser(DtoCreater.makeUserDto("other@user.com", "other"));
+        em.persist(otherUser);
+        Long otherId = otherUser.getId();
+
+        Item item = ItemMapper.toItem(DtoCreater.makeItemDto("Дрель", "Простая дрель", true,
+                null), owner);
+        em.persist(item);
+        Long itemId = item.getId();
+
+        Booking booking = BookingMapper.toBooking(DtoCreater.makeBookingDto(LocalDateTime.now().plusDays(1),
+                LocalDateTime.now().plusDays(10), itemId, userId, BookingStatus.WAITING), user, item);
+        em.persist(booking);
+        Long bookingId = booking.getId();
+
+        assertThrows(InvalidBookingIdException.class, () -> {
+            service.getBookingById(otherId, bookingId);
+        });
+    }
+
+    @Test
     void getBookingByStateWaiting() {
         User user = UserMapper.toUser(DtoCreater.makeUserDto("user@user.com", "user"));
         em.persist(user);
@@ -501,7 +557,6 @@ public class BookingTest {
 
         User owner = UserMapper.toUser(DtoCreater.makeUserDto("owner@user.com", "owner"));
         em.persist(owner);
-        Long ownerId = owner.getId();
 
         Item item = ItemMapper.toItem(DtoCreater.makeItemDto("Дрель", "Простая дрель", true,
                 null), owner);
@@ -530,6 +585,39 @@ public class BookingTest {
                     hasProperty("id", notNullValue()),
                     hasProperty("status", equalTo(BookingStatus.REJECTED)))));
         }
+    }
+
+    @Test
+    void getBookingByStateBlank() {
+        User user = UserMapper.toUser(DtoCreater.makeUserDto("user@user.com", "user"));
+        em.persist(user);
+        Long userId = user.getId();
+
+        User owner = UserMapper.toUser(DtoCreater.makeUserDto("owner@user.com", "owner"));
+        em.persist(owner);
+
+        Item item = ItemMapper.toItem(DtoCreater.makeItemDto("Дрель", "Простая дрель", true,
+                null), owner);
+        em.persist(item);
+        Long itemId = item.getId();
+
+        List<BookingDto> bookingsDto = List.of(
+                DtoCreater.makeBookingDto(LocalDateTime.now().plusDays(1),
+                        LocalDateTime.now().plusDays(10), itemId, userId, BookingStatus.WAITING),
+                DtoCreater.makeBookingDto(LocalDateTime.now().plusDays(1),
+                        LocalDateTime.now().plusDays(10), itemId, userId, BookingStatus.APPROVED),
+                DtoCreater.makeBookingDto(LocalDateTime.now().plusDays(1),
+                        LocalDateTime.now().plusDays(10), itemId, userId, BookingStatus.REJECTED),
+                DtoCreater.makeBookingDto(LocalDateTime.now().minusDays(1),
+                        LocalDateTime.now().plusDays(10), itemId, userId, BookingStatus.APPROVED),
+                DtoCreater.makeBookingDto(LocalDateTime.now().minusDays(15),
+                        LocalDateTime.now().minusDays(10), itemId, userId, BookingStatus.REJECTED));
+
+        bookingsDto.forEach(bookingDto -> em.persist(BookingMapper.toBooking(bookingDto, user, item)));
+
+        List<Booking> bookingsGet = service.getBookingByState(userId, null, null, null);
+
+        assertThat(bookingsGet, hasSize(5));
     }
 
     @Test
@@ -642,7 +730,6 @@ public class BookingTest {
 
         User owner = UserMapper.toUser(DtoCreater.makeUserDto("owner@user.com", "owner"));
         em.persist(owner);
-        Long ownerId = owner.getId();
 
         Item item = ItemMapper.toItem(DtoCreater.makeItemDto("Дрель", "Простая дрель", true,
                 null), owner);
@@ -894,6 +981,17 @@ public class BookingTest {
     }
 
     @Test
+    void getBookingByStateInvalidPageParameters() {
+        User user = UserMapper.toUser(DtoCreater.makeUserDto("user@user.com", "user"));
+        em.persist(user);
+        Long userId = user.getId();
+
+        assertThrows(InvalidPathVariableException.class, () -> {
+            service.getBookingByState(userId, String.valueOf(BookingState.WAITING), 0, 0);
+        });
+    }
+
+    @Test
     void getBookingByStateAndOwnerWaiting() {
         User user = UserMapper.toUser(DtoCreater.makeUserDto("user@user.com", "user"));
         em.persist(user);
@@ -987,6 +1085,48 @@ public class BookingTest {
                     hasProperty("id", notNullValue()),
                     hasProperty("status", equalTo(BookingStatus.REJECTED)))));
         }
+    }
+
+    @Test
+    void getBookingByStateAndOwnerBlank() {
+        User user = UserMapper.toUser(DtoCreater.makeUserDto("user@user.com", "user"));
+        em.persist(user);
+        Long userId = user.getId();
+
+        User owner = UserMapper.toUser(DtoCreater.makeUserDto("owner@user.com", "owner"));
+        em.persist(owner);
+        Long ownerId = owner.getId();
+
+        Item item = ItemMapper.toItem(DtoCreater.makeItemDto("Дрель", "Простая дрель", true,
+                null), owner);
+        em.persist(item);
+        Long itemId = item.getId();
+
+        Item item2 = ItemMapper.toItem(DtoCreater.makeItemDto("Дрель2", "Простая дрель2", true,
+                null), user);
+        em.persist(item2);
+        Long item2Id = item.getId();
+
+        List<BookingDto> bookingsItem1Dto = List.of(
+                DtoCreater.makeBookingDto(LocalDateTime.now().plusDays(1),
+                        LocalDateTime.now().plusDays(10), itemId, userId, BookingStatus.WAITING),
+                DtoCreater.makeBookingDto(LocalDateTime.now().plusDays(1),
+                        LocalDateTime.now().plusDays(10), itemId, userId, BookingStatus.APPROVED),
+                DtoCreater.makeBookingDto(LocalDateTime.now().plusDays(1),
+                        LocalDateTime.now().plusDays(10), itemId, userId, BookingStatus.REJECTED));
+
+        List<BookingDto> bookingsItem2Dto = List.of(
+                DtoCreater.makeBookingDto(LocalDateTime.now().minusDays(1),
+                        LocalDateTime.now().plusDays(10), item2Id, ownerId, BookingStatus.APPROVED),
+                DtoCreater.makeBookingDto(LocalDateTime.now().minusDays(15),
+                        LocalDateTime.now().minusDays(10), item2Id, ownerId, BookingStatus.REJECTED));
+
+        bookingsItem1Dto.forEach(bookingDto -> em.persist(BookingMapper.toBooking(bookingDto, owner, item)));
+        bookingsItem2Dto.forEach(bookingDto -> em.persist(BookingMapper.toBooking(bookingDto, user, item2)));
+
+        List<Booking> bookingsGet = service.getBookingsByOwnerAndState(ownerId, null, null, null);
+
+        assertThat(bookingsGet, hasSize(3));
     }
 
     @Test
@@ -1441,5 +1581,16 @@ public class BookingTest {
                 String.valueOf(BookingState.PAST), 1, 5);
 
         assertThat(bookingsGet, hasSize(0));
+    }
+
+    @Test
+    void getBookingByStateAndOwnerInvalidPageParameters() {
+        User user = UserMapper.toUser(DtoCreater.makeUserDto("user@user.com", "user"));
+        em.persist(user);
+        Long userId = user.getId();
+
+        assertThrows(InvalidPathVariableException.class, () -> {
+            service.getBookingsByOwnerAndState(userId, String.valueOf(BookingState.WAITING), 0, 0);
+        });
     }
 }

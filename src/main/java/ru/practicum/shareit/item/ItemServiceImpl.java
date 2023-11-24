@@ -176,23 +176,6 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> searchItemsByText(long userId, String text, Integer from, Integer size) {
-        if (text == null || text.isEmpty() || text.isBlank()) {
-            return new ArrayList<>();
-        }
-        userService.checkUser(userId);
-        if (from == null || size == null) {
-            return ItemMapper.toItemDto(itemRepository.searchItemsByText(text, text));
-        } else if (from < 0 || size <= 0) {
-            throw new InvalidPathVariableException("Incorrect page parameters");
-        } else {
-            int pageNumber = from / size;
-            final Pageable page = PageRequest.of(pageNumber, size, Sort.by(Sort.Direction.ASC, "id"));
-            return ItemMapper.toItemDto(itemRepository.searchItemsByText(text, text, page).getContent());
-        }
-    }
-
-    @Override
     public void checkItem(long userId, long itemId) {
         if (!isItemValid(userId, itemId)) {
             throw new InvalidItemIdException(itemId);

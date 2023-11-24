@@ -548,26 +548,39 @@ public class ItemServiceTest {
         em.persist(item);
         Long itemId = item.getId();
 
-        Booking booking = BookingMapper.toBooking(DtoCreater.makeBookingDto(LocalDateTime.now().minusDays(5),
-                LocalDateTime.now().minusDays(1), itemId, userId, BookingStatus.APPROVED), user, item);
-        em.persist(booking);
+        Booking bookingCurrent = BookingMapper.toBooking(DtoCreater.makeBookingDto(LocalDateTime.now().minusDays(15), LocalDateTime.now().minusDays(12),
+                itemId, userId, BookingStatus.APPROVED), user, item);
+        em.persist(bookingCurrent);
+
+        Booking bookingLast = BookingMapper.toBooking(DtoCreater.makeBookingDto(LocalDateTime.now().minusDays(10), LocalDateTime.now().minusDays(6),
+                itemId, userId, BookingStatus.APPROVED), user, item);
+        em.persist(bookingLast);
+
+        Booking bookingNext = BookingMapper.toBooking(DtoCreater.makeBookingDto(LocalDateTime.now().plusDays(2), LocalDateTime.now().plusDays(10),
+                itemId, userId, BookingStatus.APPROVED), user, item);
+        em.persist(bookingNext);
 
         CommentDto commentDto = DtoCreater.makeCommentDto("Отличная дрель", "user", LocalDateTime.now());
         em.persist(CommentMapper.toComment(commentDto, user, item));
 
-        ItemDtoWithCommentsAndBookingInfo itemGet = service.getItemByIdWithCommentsAndBookingInfo(userId, itemId);
-        System.out.println(itemGet);
+        ItemDtoWithCommentsAndBookingInfo itemGet = service.getItemByIdWithCommentsAndBookingInfo(ownerId, itemId);
 
-        TypedQuery<Item> query = em.createQuery("Select i from Comment c join c.item i where i.id = :id",
-                Item.class);
-        List<Item> comments = query.setParameter("id", itemId).getResultList();
-        System.out.println(comments);
+        TypedQuery<Comment> query = em.createQuery("Select c from Comment c join c.item i where i.id = :id",
+                Comment.class);
+        List<Comment> comments = query.setParameter("id", itemId).getResultList();
 
         assertThat(itemGet.getId(), notNullValue());
         assertThat(itemGet.getName(), equalTo(item.getName()));
         assertThat(itemGet.getDescription(), equalTo(item.getDescription()));
         assertThat(itemGet.getAvailable(), equalTo(item.isAvailable()));
         assertThat(itemGet.getComments(), hasSize(1));
+        assertThat(itemGet.getComments()
+                .stream()
+                .map(commentDtoFromComments -> CommentMapper
+                        .toComment(commentDtoFromComments.getId(), commentDto, user, item))
+                .collect(Collectors.toList()), equalTo(comments));
+        assertThat(itemGet.getLastBooking(), equalTo(BookingMapper.toBookingDto(bookingLast)));
+        assertThat(itemGet.getNextBooking(), equalTo(BookingMapper.toBookingDto(bookingNext)));
     }
 
     @Test
@@ -764,6 +777,19 @@ public class ItemServiceTest {
                 hasProperty("name", equalTo(item2.getName())),
                 hasProperty("description", equalTo(item2.getDescription())),
                 hasProperty("available", equalTo(item2.isAvailable())))));
+    }
+
+    @Test
+    void searchItemsEmpty() {
+        em.persist(UserMapper.toUser(DtoCreater.makeUserDto("user@user.com", "user")));
+
+        User owner = UserMapper.toUser(DtoCreater.makeUserDto("owner@user.com", "owner"));
+        em.persist(owner);
+        Long ownerId = owner.getId();
+
+        List<ItemDto> itemsGet = service.searchItems(ownerId, null, null, null);
+
+        assertThat(itemsGet, hasSize(0));
     }
 
     @Test

@@ -10,7 +10,6 @@ import ru.practicum.shareit.request.ItemRequest;
 import ru.practicum.shareit.user.User;
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 public class ItemMapper {
@@ -58,16 +57,6 @@ public class ItemMapper {
                 .build();
     }
 
-    public static List<ItemDtoWithBookingInfo> toItemDto(List<Item> items,
-                                                         Map<Long, BookingDto> lastBookings,
-                                                         Map<Long, BookingDto> nextBookings) {
-        return items.stream()
-                .map(item -> toItemDtoWithBookingInfo(item,
-                        lastBookings.get(item.getId()),
-                        nextBookings.get(item.getId())))
-                .collect(Collectors.toList());
-    }
-
     public static Item toItem(long itemId, ItemDto itemDto, User user) {
         return Item.builder()
                 .id(itemId)
@@ -105,25 +94,6 @@ public class ItemMapper {
                 .available(itemDto.getAvailable())
                 .user(user)
                 .request(request)
-                .build();
-    }
-
-    public static Item toItem(Item item, ItemDto itemDto, User user) {
-        itemDto.setName(itemDto.getName() != null ?
-                itemDto.getName() :
-                item.getName());
-        itemDto.setDescription(itemDto.getDescription() != null ?
-                itemDto.getDescription() :
-                item.getDescription());
-        itemDto.setAvailable(itemDto.getAvailable() != null ?
-                itemDto.getAvailable() :
-                item.isAvailable());
-        return Item.builder()
-                .id(item.getId())
-                .name(itemDto.getName())
-                .description(itemDto.getDescription())
-                .available(itemDto.getAvailable())
-                .user(user)
                 .build();
     }
 

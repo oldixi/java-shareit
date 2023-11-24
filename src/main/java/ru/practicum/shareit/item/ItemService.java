@@ -33,6 +33,4 @@ public interface ItemService {
     void checkItem(long userId, long itemId);
 
     void checkItem(long itemId);
-
-    List<ItemDto> searchItemsByText(long userId, String text, Integer from, Integer size);
 }

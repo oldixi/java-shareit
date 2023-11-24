@@ -64,10 +64,6 @@ public class UserServiceImpl implements UserService {
         return email == null || email.isBlank() || email.isEmpty();
     }
 
-    private boolean isEmailExists(long userId, String email) {
-        return userRepository.findByEmailIgnoreCaseAndIdNot(email, userId).isPresent();
-    }
-
     private boolean isInvalidId(long id) {
         return id <= 0;
     }

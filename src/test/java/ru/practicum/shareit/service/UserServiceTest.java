@@ -138,6 +138,13 @@ class UserServiceTest {
     }
 
     @Test
+    void deleteUserInvalidId() {
+        assertThrows(InvalidUserIdException.class, () -> {
+            service.deleteUser(DtoCreater.NEGATIVE_ID);
+        });
+    }
+
+    @Test
     void getUserById() {
         UserDto userDto = makeUserDto("userForGet@user.com", "userForGet");
         User user = UserMapper.toUser(userDto);

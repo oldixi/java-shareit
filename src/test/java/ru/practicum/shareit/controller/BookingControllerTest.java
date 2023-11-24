@@ -14,6 +14,7 @@ import ru.practicum.shareit.booking.BookingService;
 import ru.practicum.shareit.booking.BookingStatus;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.comment.CommentDto;
+import ru.practicum.shareit.exception.InvalidPathVariableException;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.ItemMapper;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -75,6 +76,13 @@ public class BookingControllerTest {
             .requestId(1L)
             .build();
 
+    private final BookingDto bookingDto = BookingDto.builder()
+            .id(1L)
+            .itemId(1L)
+            .userId(1L)
+            .status(BookingStatus.APPROVED)
+            .build();
+
     private final BookingDto lastBookingDto = BookingDto.builder()
             .id(1L)
             .itemId(1L)
@@ -123,6 +131,19 @@ public class BookingControllerTest {
                 .andExpect(jsonPath("$.status", is(String.valueOf(lastBookingDto.getStatus()))))
                 .andExpect(jsonPath("$.start", is(String.valueOf(lastBookingDto.getStartDate()))))
                 .andExpect(jsonPath("$.end", is(String.valueOf(lastBookingDto.getEndDate()))));
+    }
+
+    @Test
+    void createBookingEmptyDates() throws Exception {
+        when(bookingService.createBooking(anyLong(), any())).thenThrow(InvalidPathVariableException.class);
+
+        mvc.perform(post("/bookings")
+                        .content(mapper.writeValueAsString(bookingDto))
+                        .header("X-Sharer-User-Id", 1L)
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
