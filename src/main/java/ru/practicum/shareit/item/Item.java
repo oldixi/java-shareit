@@ -54,4 +54,9 @@ public class Item {
         if (!(o instanceof Item)) return false;
         return id != null && id.equals(((Item) o).getId());
     }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 }
