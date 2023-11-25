@@ -20,6 +20,7 @@ public class ItemMapper {
                 .name(item.getName())
                 .description(item.getDescription())
                 .available(item.isAvailable())
+                .requestId(item.getRequest() != null ? item.getRequest().getId() : null)
                 .build();
     }
 
@@ -124,7 +125,7 @@ public class ItemMapper {
                 .description(item.getDescription())
                 .available(item.isAvailable())
                 .user(item.getUser())
-                .requestId(item.getRequest() != null ? (Long) item.getRequest().getId() : null)
+                .requestId(item.getRequest() != null ? item.getRequest().getId() : null)
                 .build();
     }
 }
