@@ -46,7 +46,7 @@ public class ItemRequestServiceTest {
     private final ItemRequestService service;
 
     @Test
-    void createItemRequest() {
+    void shouldCreateItemRequestWhenValidRequest() {
         User user = UserMapper.toUser(DtoCreater.makeUserDto("user@user.com", "user"));
         em.persist(user);
         Long userId = user.getId();
@@ -65,7 +65,7 @@ public class ItemRequestServiceTest {
     }
 
     @Test
-    void createItemRequestInvalidUserId() {
+    void shouldNotCreateItemRequestWhenInvalidUserId() {
         em.persist(UserMapper.toUser(DtoCreater.makeUserDto("user@user.com", "user")));
 
         ItemRequestDto requestDto = DtoCreater.makeItemRequestDto("Хотел бы воспользоваться щёткой для обуви");
@@ -76,7 +76,7 @@ public class ItemRequestServiceTest {
     }
 
     @Test
-    void getItemRequestByIdEmptyItems() {
+    void shouldGetItemRequestWhenValidIdWithEmptyItems() {
         User user = UserMapper.toUser(DtoCreater.makeUserDto("user@user.com", "user"));
         em.persist(user);
         Long userId = user.getId();
@@ -97,7 +97,7 @@ public class ItemRequestServiceTest {
     }
 
     @Test
-    void getItemRequestByIdInvalidUserId() {
+    void shouldNotGetItemRequestByIdWhenInvalidUserId() {
         User user = UserMapper.toUser(DtoCreater.makeUserDto("user@user.com", "user"));
         em.persist(user);
         Long userId = user.getId();
@@ -114,7 +114,7 @@ public class ItemRequestServiceTest {
     }
 
     @Test
-    void getItemRequestByIdInvalidId() {
+    void shouldNotGetItemRequestByIdWhenInvalidId() {
         User user = UserMapper.toUser(DtoCreater.makeUserDto("user@user.com", "user"));
         em.persist(user);
         Long userId = user.getId();
@@ -129,7 +129,7 @@ public class ItemRequestServiceTest {
     }
 
     @Test
-    void getItemRequestById() {
+    void shouldGetItemRequestWhenValidId() {
         User user = UserMapper.toUser(DtoCreater.makeUserDto("userIR@user.com", "userIR"));
         em.persist(user);
         Long userId = user.getId();
@@ -165,7 +165,7 @@ public class ItemRequestServiceTest {
     }
 
     @Test
-    void getItemRequestsByRequestorIdInvalidRequestorId() {
+    void shouldNotGetItemRequestsByRequestorIdWhenInvalidRequestorId() {
         User user = UserMapper.toUser(DtoCreater.makeUserDto("user@user.com", "user"));
         em.persist(user);
         Long userId = user.getId();
@@ -182,7 +182,7 @@ public class ItemRequestServiceTest {
     }
 
     @Test
-    void getItemRequestsByRequestorId() {
+    void shouldGetItemRequestsWhenValidRequestorId() {
         User user = UserMapper.toUser(DtoCreater.makeUserDto("user@user.com", "user"));
         em.persist(user);
         Long userId = user.getId();
@@ -206,7 +206,7 @@ public class ItemRequestServiceTest {
     }
 
     @Test
-    void getItemRequestsPageable() {
+    void shouldGetItemRequestsPageable() {
         User user = UserMapper.toUser(DtoCreater.makeUserDto("user@user.com", "user"));
         em.persist(user);
         Long userId = user.getId();
@@ -233,7 +233,7 @@ public class ItemRequestServiceTest {
     }
 
     @Test
-    void getItemRequests() {
+    void shouldGetAllItemRequests() {
         User user = UserMapper.toUser(DtoCreater.makeUserDto("user@user.com", "user"));
         em.persist(user);
         Long userId = user.getId();
@@ -256,7 +256,7 @@ public class ItemRequestServiceTest {
     }
 
     @Test
-    void getItemRequestsInvalidRequestorId() {
+    void shouldNotGetItemRequestsWhenInvalidRequestorId() {
         User user = UserMapper.toUser(DtoCreater.makeUserDto("user@user.com", "user"));
         em.persist(user);
         Long userId = user.getId();
@@ -277,7 +277,7 @@ public class ItemRequestServiceTest {
     }
 
     @Test
-    void getItemRequestsInvalidPageParameters() {
+    void shouldGetItemRequestsWhenInvalidPageParameters() {
         User user = UserMapper.toUser(DtoCreater.makeUserDto("user@user.com", "user"));
         em.persist(user);
         Long userId = user.getId();
