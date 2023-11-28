@@ -2,6 +2,9 @@ package ru.practicum.shareit.item;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.BookingMapper;
@@ -18,6 +21,8 @@ import ru.practicum.shareit.exception.PermissionDeniedException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoWithBookingInfo;
 import ru.practicum.shareit.item.dto.ItemDtoWithCommentsAndBookingInfo;
+import ru.practicum.shareit.item.dto.ItemDtoWithRequestId;
+import ru.practicum.shareit.request.ItemRequestRepository;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserService;
 
@@ -25,6 +30,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @Slf4j
@@ -32,18 +38,23 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
+    private final ItemRequestRepository itemRequestRepository;
     private final CommentRepository commentRepository;
     private final BookingRepository bookingRepository;
     private final UserService userService;
 
     @Override
     @Transactional
-    public Item createItem(long userId, ItemDto itemDto) {
+    public ItemDtoWithRequestId createItem(long userId, ItemDto itemDto) {
         if (isItemAttrsEmpty(itemDto)) {
             throw new InvalidItemAttrsException();
         }
         User user = userService.getUserById(userId);
-        return itemRepository.save(ItemMapper.toItem(itemDto, user));
+        Item item = itemRepository.save(ItemMapper.toItem(itemDto, user,
+                itemDto.getRequestId() != null ? itemRequestRepository
+                        .findById(itemDto.getRequestId()).orElse(null) : null));
+        log.info("Item {} is created", item.getId());
+        return ItemMapper.toItemDtoWithRequestId(item);
     }
 
     @Override
@@ -54,7 +65,9 @@ public class ItemServiceImpl implements ItemService {
         }
         User user = userService.getUserById(userId);
         return itemRepository.save(ItemMapper.toItem(itemRepository.findByUserIdAndId(userId, itemId)
-                .orElseThrow(() -> new InvalidItemIdException(itemId)), itemDto, user));
+                .orElseThrow(() -> new InvalidItemIdException(itemId)), itemDto, user,
+                itemDto.getRequestId() != null ? itemRequestRepository
+                        .findById(itemDto.getRequestId()).orElse(null) : null));
     }
 
     @Override
@@ -109,21 +122,6 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemDtoWithCommentsAndBookingInfo getItemByIdAndUserId(long itemId, long userId) {
-        userService.checkUser(userId);
-        return ItemMapper.toItemDtoWithCommentsAndBookingInfo(
-                itemRepository.findByUserIdAndId(itemId, userId).orElseThrow(() -> new InvalidItemIdException(itemId)),
-                CommentMapper.toCommentDto(commentRepository.findByUserIdAndItemId(userId, itemId)),
-                BookingMapper.toBookingDto(bookingRepository
-                        .findTopByItemIdAndStartDateBeforeOrderByStartDateDesc(itemId,
-                                LocalDateTime.now()).orElse(null)),
-                BookingMapper.toBookingDto(bookingRepository
-                        .findTopByItemIdAndStartDateAfterAndStatusInOrderByStartDateAsc(itemId,
-                                LocalDateTime.now(),
-                                List.of(BookingStatus.WAITING, BookingStatus.APPROVED)).orElse(null)));
-    }
-
-    @Override
     public ItemDto getItemByIdAndUserIdNot(long userId, long itemId) {
         userService.checkUser(userId);
         return ItemMapper.toItemDto(itemRepository
@@ -131,37 +129,49 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDtoWithBookingInfo> getItemsByUserId(long userId) {
+    public List<ItemDtoWithBookingInfo> getItemsByUserId(long userId, Integer from, Integer size) {
         userService.checkUser(userId);
-        return itemRepository.findByUserId(userId).stream()
-                .map(item -> ItemMapper.toItemDtoWithBookingInfo(item,
-                        item.getUser().getId() == userId ?
-                                BookingMapper.toBookingDto(bookingRepository
-                                        .findTopByItemIdAndStartDateBeforeOrderByStartDateDesc(item.getId(),
-                                                LocalDateTime.now()).orElse(null)) : null,
-                        item.getUser().getId() == userId ?
-                                BookingMapper.toBookingDto(bookingRepository
-                                        .findTopByItemIdAndStartDateAfterAndStatusInOrderByStartDateAsc(item.getId(),
-                                                LocalDateTime.now(),
-                                                List.of(BookingStatus.WAITING, BookingStatus.APPROVED)).orElse(null)) : null))
+        Stream<Item> items;
+        if (from == null || size == null) {
+            items = itemRepository.findByUserIdOrderByIdAsc(userId).stream();
+        } else if (from < 0 || size <= 0) {
+            throw new InvalidPathVariableException("Incorrect page parameters");
+        } else {
+            int pageNumber = from / size;
+            final Pageable page = PageRequest.of(pageNumber, size, Sort.by(Sort.Direction.ASC, "id"));
+            items = itemRepository.findByUserIdOrderByIdAsc(userId, page).get();
+        }
+        return items.map(item -> ItemMapper.toItemDtoWithBookingInfo(item,
+                            item.getUser().getId() == userId ?
+                                    BookingMapper.toBookingDto(bookingRepository
+                                            .findTopByItemIdAndStartDateBeforeOrderByStartDateDesc(item.getId(),
+                                                    LocalDateTime.now()).orElse(null)) : null,
+                            item.getUser().getId() == userId ?
+                                    BookingMapper.toBookingDto(bookingRepository
+                                            .findTopByItemIdAndStartDateAfterAndStatusInOrderByStartDateAsc(item.getId(),
+                                                    LocalDateTime.now(),
+                                                    List.of(BookingStatus.WAITING, BookingStatus.APPROVED)).orElse(null)) : null))
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<ItemDto> searchItems(long userId, String text) {
+    public List<ItemDto> searchItems(long userId, String text, Integer from, Integer size) {
         if (text == null || text.isEmpty() || text.isBlank()) {
             return new ArrayList<>();
         }
         userService.checkUser(userId);
-        return ItemMapper.toItemDto(itemRepository
-                .findByAvailableTrueAndUserIdAndNameContainingIgnoreCaseOrAvailableTrueAndDescriptionContainingIgnoreCase(userId,
-                        text, text));
-    }
-
-    @Override
-    public void checkItem(long userId, long itemId) {
-        if (!isItemValid(userId, itemId)) {
-            throw new InvalidItemIdException(itemId);
+        if (from == null || size == null) {
+            return ItemMapper.toItemDto(itemRepository
+                    .findByAvailableTrueAndUserIdAndNameContainingIgnoreCaseOrAvailableTrueAndDescriptionContainingIgnoreCase(userId,
+                            text, text));
+        } else if (from < 0 || size <= 0) {
+            throw new InvalidPathVariableException("Incorrect page parameters");
+        } else {
+            int pageNumber = from / size;
+            final Pageable page = PageRequest.of(pageNumber, size, Sort.by(Sort.Direction.ASC, "id"));
+            return ItemMapper.toItemDto(itemRepository
+                    .findByAvailableTrueAndUserIdAndNameContainingIgnoreCaseOrAvailableTrueAndDescriptionContainingIgnoreCase(userId,
+                            text, text, page).getContent());
         }
     }
 
@@ -182,11 +192,11 @@ public class ItemServiceImpl implements ItemService {
         return id <= 0;
     }
 
-    private boolean isItemExists(long userId, long id) {
-        return itemRepository.existsById(id) && itemRepository.findByUserIdAndId(userId, id).isPresent();
+    private boolean isItemExists(long id) {
+        return itemRepository.existsById(id);
     }
 
     private boolean isItemValid(long userId, long id) {
-        return !isInvalidId(id) && isItemExists(userId, id);
+        return !isInvalidId(id) && isItemExists(id);
     }
 }

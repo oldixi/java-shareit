@@ -17,7 +17,7 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public User cteateUser(UserDto userDto) {
+    public User createUser(UserDto userDto) {
         if (isEmailEmpty(userDto.getEmail())) {
             throw new InvalidEmailException();
         }
@@ -62,10 +62,6 @@ public class UserServiceImpl implements UserService {
 
     private boolean isEmailEmpty(String email) {
         return email == null || email.isBlank() || email.isEmpty();
-    }
-
-    private boolean isEmailExists(long userId, String email) {
-        return userRepository.findByEmailIgnoreCaseAndIdNot(email, userId).isPresent();
     }
 
     private boolean isInvalidId(long id) {
