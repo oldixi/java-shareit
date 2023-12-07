@@ -67,7 +67,7 @@ public class ItemController {
     }
 
     @GetMapping
-    public ResponseEntity<Object>getItemsByUserId(@RequestHeader("X-Sharer-User-Id") long userId,
+    public ResponseEntity<Object> getItemsByUserId(@RequestHeader("X-Sharer-User-Id") long userId,
                 @PositiveOrZero @RequestParam(name = "from", defaultValue = "0") Integer from,
                 @Positive @RequestParam(name = "size", defaultValue = "10") Integer size) {
         log.info("Request for get {} items of user {} from {}", size, userId, from);

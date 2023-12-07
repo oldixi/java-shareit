@@ -27,7 +27,7 @@ public class ItemClient extends BaseClient {
         );
     }
 
-    public ResponseEntity<Object> createItem (long userId, ItemDto itemDto) {
+    public ResponseEntity<Object> createItem(long userId, ItemDto itemDto) {
         return post("", userId, itemDto);
     }
 
@@ -39,7 +39,7 @@ public class ItemClient extends BaseClient {
         return delete("/" + itemId, userId);
     }
 
-    public ResponseEntity<Object> addComment (long userId, long itemId, CommentDto text) {
+    public ResponseEntity<Object> addComment(long userId, long itemId, CommentDto text) {
         return post("/" + itemId + "/comment", userId, text);
     }
 
