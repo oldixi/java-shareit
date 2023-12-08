@@ -3,6 +3,7 @@ package ru.practicum.shareit.service;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.practicum.shareit.exception.InvalidItemRequestIdException;
 import ru.practicum.shareit.exception.InvalidPathVariableException;
@@ -38,8 +39,8 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Transactional
-@SpringBootTest(properties = "db.name=test",
-        webEnvironment = SpringBootTest.WebEnvironment.NONE)
+@AutoConfigureTestDatabase
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class ItemRequestServiceTest {
     private final EntityManager em;

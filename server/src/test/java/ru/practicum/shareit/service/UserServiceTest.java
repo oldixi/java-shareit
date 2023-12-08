@@ -3,13 +3,14 @@ package ru.practicum.shareit.service;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.practicum.shareit.exception.InvalidEmailException;
 import ru.practicum.shareit.exception.InvalidUserIdException;
 import ru.practicum.shareit.user.User;
+import ru.practicum.shareit.user.UserDto;
 import ru.practicum.shareit.user.UserMapper;
 import ru.practicum.shareit.user.UserService;
-import ru.practicum.shareit.user.UserDto;
 
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
@@ -28,10 +29,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static ru.practicum.shareit.service.DtoCreater.makeUserDto;
 
 @Transactional
-@SpringBootTest(properties = "db.name=test",
-                webEnvironment = SpringBootTest.WebEnvironment.NONE)
+@AutoConfigureTestDatabase
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-class UserServiceTest {
+public class UserServiceTest {
     private final EntityManager em;
     private final UserService service;
 
