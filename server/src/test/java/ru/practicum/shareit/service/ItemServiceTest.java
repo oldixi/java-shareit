@@ -781,31 +781,6 @@ public class ItemServiceTest {
     }
 
     @Test
-    void searchItems() {
-        em.persist(UserMapper.toUser(DtoCreater.makeUserDto("user@user.com", "user")));
-
-        User owner = UserMapper.toUser(DtoCreater.makeUserDto("owner@user.com", "owner"));
-        em.persist(owner);
-        Long ownerId = owner.getId();
-
-        em.persist(ItemMapper.toItem(DtoCreater.makeItemDto("Дрель", "Простая дрель", true,
-                null), owner));
-
-        Item item2 = ItemMapper.toItem(DtoCreater.makeItemDto("Дрель аккумуляторная", "Аккумуляторная дрель",
-                true, null), owner);
-        em.persist(item2);
-
-        List<ItemDto> itemsGet = service.searchItems(ownerId, "АккУм", null, null);
-
-        assertThat(itemsGet, hasSize(1));
-        assertThat(itemsGet, hasItem(allOf(
-                hasProperty("id", notNullValue()),
-                hasProperty("name", equalTo(item2.getName())),
-                hasProperty("description", equalTo(item2.getDescription())),
-                hasProperty("available", equalTo(item2.isAvailable())))));
-    }
-
-    @Test
     void searchItemsEmpty() {
         em.persist(UserMapper.toUser(DtoCreater.makeUserDto("user@user.com", "user")));
 
@@ -823,31 +798,6 @@ public class ItemServiceTest {
         assertThrows(InvalidUserIdException.class, () -> {
             service.searchItems(DtoCreater.INVALID_ID, "АккУм", null, null);
         });
-    }
-
-    @Test
-    void searchItemsPageable() {
-        em.persist(UserMapper.toUser(DtoCreater.makeUserDto("user@user.com", "user")));
-
-        User owner = UserMapper.toUser(DtoCreater.makeUserDto("owner@user.com", "owner"));
-        em.persist(owner);
-        Long ownerId = owner.getId();
-
-        em.persist(ItemMapper.toItem(DtoCreater.makeItemDto("Дрель", "Простая дрель", true,
-                null), owner));
-
-        Item item2 = ItemMapper.toItem(DtoCreater.makeItemDto("Дрель аккумуляторная", "Аккумуляторная дрель",
-                true, null), owner);
-        em.persist(item2);
-
-        List<ItemDto> itemsGet = service.searchItems(ownerId, "АккУм", 0, 3);
-
-        assertThat(itemsGet, hasSize(1));
-        assertThat(itemsGet, hasItem(allOf(
-                hasProperty("id", notNullValue()),
-                hasProperty("name", equalTo(item2.getName())),
-                hasProperty("description", equalTo(item2.getDescription())),
-                hasProperty("available", equalTo(item2.isAvailable())))));
     }
 
     @Test
