@@ -1,4 +1,4 @@
-# Shareit
+# java-shareit
 
 ## _Description_
 
