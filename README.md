@@ -54,7 +54,7 @@ Project allows users to
 |        | /items/{itemId}            | Returns item by id                              | id > 0                                           |
 |        | /items/search              | Returns items name/description like search-text | id > 0                                           |
 | POST   | /items                     | Create item                                     | requires json body                               |
-| POST   | /items/{itemId}/comments   | Create comment                                  | requires json body with comment text             |
+|        | /items/{itemId}/comments   | Create comment                                  | requires json body with comment text             |
 | PATCH  | /items/{id}                | Update item's attributes                        | id > 0, requires json body                       |
 | DELETE | /items/{id}                | Delete item by id                               | id > 0                                           |
 
@@ -85,6 +85,9 @@ Project allows users to
 > Used Spring boot 2.7.9<br>
 > Spring Data JPA, Hibernate
 > Java version 11
+> WebMvcTest
+> SpringBootTest
+> Mock
 > Docker
 > Has services:
 > * gateway (check request's parameters)
@@ -100,4 +103,5 @@ Project allows users to
 ### ER diagram
 ![Shareit ER diagram](shareit.png)
 
-
+## _Тестирование проекта_
+Основные операции приложения проверяются с помощью postman-коллекции тестов. Для тестирования логики дополнительно используются автотесты.
