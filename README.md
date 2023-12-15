@@ -83,13 +83,13 @@ Project allows users to
 ## _Project structure_
 
 > Used Spring boot 2.7.9<br>
-> Spring Data JPA, Hibernate
-> Java version 11
-> WebMvcTest
-> SpringBootTest
-> Mock
-> Docker
-> Has services:
+> Spring Data JPA, Hibernate<br>
+> Java version 11<br>
+> WebMvcTest<br>
+> SpringBootTest<br>
+> Mock<br>
+> Docker<br>
+> Has services:<br>
 > * gateway (check request's parameters)
 > * server (logic)
 
